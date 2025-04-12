@@ -9,7 +9,6 @@ export default function App(){
     <Routes>
       <Route path='/' element={<Front/>}></Route>
       <Route path='/whiteboard' element={<WhiteBoard/>}></Route>
-
     </Routes>
     </BrowserRouter>
 

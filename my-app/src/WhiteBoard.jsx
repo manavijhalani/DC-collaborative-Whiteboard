@@ -6,6 +6,15 @@ import { useRef } from "react";
 //import UndoIcon from '@mui/icons-material/Undo';
 import { HexColorPicker } from "react-colorful";
 import Slider from '@mui/material/Slider';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import { Stack, TextField } from "@mui/material";
+import { styled } from '@mui/material/styles';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+
 
 export default function CanvasPage() {
 
@@ -15,10 +24,46 @@ const [brushColor,setbrushColor]=useState("black")
 const [colorpicker,showColorpicker]=useState(false);
 const [brushRadius,setbrushRadius]=useState(10);
 const [radiusslider,setshowradiusslider]=useState(false);
+const [messages,setMessage]=useState([]);
+const [newInputMessage,setnewInputMessage]=useState("")
+
+const handleSendMessage=(e)=>{
+  setMessage([
+   ...messages,
+      newInputMessage
+  ]
+  );
+  console.log(messages)
+}
+const card = (
+    <React.Fragment>
+      <CardContent>
+        <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14, marginBottom:'20px' }}>
+          Communicate
+        </Typography>
+        <TextField value={newInputMessage} onChange={(e)=>setnewInputMessage(e.target.value)} id="outlined-basic" label="Outlined" variant="outlined" />
+      </CardContent>
+      <CardActions>
+        <Button size="small" onClick={handleSendMessage}> Send</Button>
+      </CardActions>
+    </React.Fragment>
+  );
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: '#ACB9EE',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'left',
+  color: (theme.vars ?? theme).palette.text.secondary,
+  ...theme.applyStyles('dark', {
+    backgroundColor: '#1A2027',
+  }),
+}));
 
 const handleClear=()=>{
     Canvasref.current.clear();
 }
+
+
 
 const handleSave=()=>{
     const data=Canvasref.current.getSaveData();
@@ -35,6 +80,7 @@ const handleColorpicker=()=>{
 const handleRadius=()=>{
     setshowradiusslider(!radiusslider)
 }
+
 
   return (
     <div>
@@ -72,8 +118,8 @@ const handleRadius=()=>{
       }
 
 
-
-      <div style={{borderColor:'2px solid black', padding:'4px',display:'block'}}>
+     <div style={{ display: 'flex', gap: '20px', marginTop: '30px', alignItems: 'flex-start' }}>
+      <div style={{borderColor:'2px solid black', padding:'4px',display:'inline-block'}}>
       <CanvasDraw ref={Canvasref}
         brushColor={brushColor}
         brushRadius={brushRadius}
@@ -82,15 +128,24 @@ const handleRadius=()=>{
         canvasHeight={700}
         hideGrid={true}
         backgroundColor={boardcolor}
+        enablePanAndZoom={false}
         //disabled={true}
       />
       </div>
+      <div style={{display:'inline-block'}}>
+        <Card>{card}</Card>
+        <Stack spacing={2}   sx={{maxHeight:'500px',overflowY:'auto',width:'350px'}}>
+            {[...messages].reverse().map((message,index)=>(
+               <Item key={index}>{message}</Item>
+            ))}
+        </Stack>
+      </div>
 
-     
+      
+    </div>
     </div>
 
-
-
+    
 
     </div>
 
