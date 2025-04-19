@@ -15,11 +15,16 @@ import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import { useEffect } from "react";
+import {io} from 'socket.io-client';
+import { useLocation } from "react-router-dom";
 
 
 
 export default function CanvasPage() {
-
+const location=useLocation();
+const obj=location.state||{};
+const roomid=obj.roomid;
+const username=obj.username;
 const Canvasref=useRef([React.createRef()]);//array of refs for each page to call related functions like save,undo etc
 const [boardcolor,setboardcolor]=useState("pink");
 const [brushColor,setbrushColor]=useState("black")
@@ -31,6 +36,31 @@ const [newInputMessage,setnewInputMessage]=useState("")
 const [pageindex,setpageindex]=useState(0);
 const [pagedrawing,savepagedrawing]=useState([])
 const [pagewiseboardcolor,setpagewiseboardcolor]=useState([])
+const socketref=useRef(null)
+
+useEffect(()=>{
+   // client-side
+  socketref.current = io("http://localhost:3001");
+   socketref.current?.on("connect", () => {
+  console.log(socketref.current?.id); // x8WIv7-mJelg7on_ALbx
+  const data={'username':username,'roomid':roomid}
+  socketref.current?.emit('join-room',data);
+  console.log(`sent id as ${roomid}`)
+});
+
+socketref.current?.on("disconnect", () => {
+  console.log(socketref.current?.id); // undefined
+});
+
+socketref.current?.on("messagefromothers",(data)=>[
+  setMessage(messages=>[...messages,data])
+])
+return()=>{
+  socketref.current?.off('messagefromothers');
+}
+
+},[])
+
 
 
 useEffect(() => {
@@ -57,11 +87,13 @@ useEffect(()=>{
 },[pageindex])
 
 const handleSendMessage=(e)=>{
-  setMessage([
+  socketref.current?.emit('message',`${socketref.current.id} says ${newInputMessage}`)
+  setMessage(messages=>[
    ...messages,
       newInputMessage
   ]
   );
+  setnewInputMessage("")
   console.log(messages)
 }
 const card = (
@@ -74,6 +106,7 @@ const card = (
       </CardContent>
       <CardActions>
         <Button size="small" onClick={handleSendMessage}> Send</Button>
+        <Button onClick={()=>{socket.emit('message',"hi")}}>Test</Button>
       </CardActions>
     </React.Fragment>
   );
@@ -213,6 +246,7 @@ else{
             ))}
         </Stack>
       </div>
+      
 
       
     </div>
