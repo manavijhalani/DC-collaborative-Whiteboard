@@ -87,7 +87,8 @@ useEffect(()=>{
 },[pageindex])
 
 const handleSendMessage=(e)=>{
-  socketref.current?.emit('message',`${socketref.current.id} says ${newInputMessage}`)
+  const inp={'message':`${socketref.current.id} says ${newInputMessage}`,'roomid':roomid}
+  socketref.current?.emit('message',inp)
   setMessage(messages=>[
    ...messages,
       newInputMessage
